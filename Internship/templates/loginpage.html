@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flask API Interaction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1, h2 {
+            color: #007BFF;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 10px 0;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+    </style>
+    <script>
+        async function registerUser() {
+            const username = document.getElementById('register-username').value;
+            const password = document.getElementById('register-password').value;
+            const role = document.getElementById('register-role').value;
+
+            const response = await fetch('/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password, role })
+            });
+
+            const data = await response.json();
+            alert(data.message);
+        }
+
+        async function loginUser() {
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                localStorage.setItem('access_token', data.access_token);
+                alert('Login successful!');
+            } else {
+                alert(data.message);
+            }
+        }
+
+        async function accessRoute(route) {
+            const token = localStorage.getItem('access_token');
+
+            const response = await fetch(`/${route}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            const data = await response.json();
+            alert(data.message);
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Flask API Interaction</h1>
+
+        <div class="section">
+            <h2>Register</h2>
+            <input type="text" id="register-username" placeholder="Username"><br>
+            <input type="password" id="register-password" placeholder="Password"><br>
+            <input type="text" id="register-role" placeholder="Role"><br>
+            <button onclick="registerUser()">Register</button>
+        </div>
+
+        <div class="section">
+            <h2>Login</h2>
+            <input type="text" id="login-username" placeholder="Username"><br>
+            <input type="password" id="login-password" placeholder="Password"><br>
+            <button onclick="loginUser()">Login</button>
+        </div>
+
+        <div class="section">
+            <h2>Access Protected Routes</h2>
+            <button onclick="accessRoute('admin')">Admin Route</button>
+            <button onclick="accessRoute('user')">User Route</button>
+        </div>
+    </div>
+</body>
+</html>
